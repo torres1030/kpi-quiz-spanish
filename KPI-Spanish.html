@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>¿Es un KPI? — 100 Empleados Dijieron</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ── RESET & TOKENS ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --red:    #CC1B1B;
+  --red2:   #A81515;
+  --red-lt: #FF3030;
+  --gold:   #F5C518;
+  --gold2:  #FFD740;
+  --gold-dk:#C89B00;
+  --navy:   #0A1628;
+  --blue:   #1565C0;
+  --blue2:  #1976D2;
+  --white:  #FFFFFF;
+  --cream:  #FFF8E7;
+  --green:  #2E7D32;
+  --green2: #43A047;
+  --wrong:  #B71C1C;
+  --text:   #1A1A1A;
+  --muted:  #666;
+}
+html,body{height:100%;font-family:'Nunito',sans-serif;background:var(--navy);color:var(--white);overflow-x:hidden;}
+
+/* ── SCREENS ── */
+.screen{display:none;min-height:100vh;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+.screen.active{display:flex;}
+
+/* ── STARS / BG ── */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(245,197,24,.07) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(204,27,27,.09) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 80%, rgba(21,101,192,.1) 0%, transparent 60%);
+}
+.screen{position:relative;z-index:1;}
+
+/* ── SHOW LOGO ── */
+.show-logo{text-align:center;margin-bottom:8px;}
+.show-logo-top{font-family:'Bebas Neue',sans-serif;font-size:clamp(16px,3vw,26px);color:var(--gold);letter-spacing:.25em;text-transform:uppercase;}
+.show-logo-main{
+  font-family:'Anton',sans-serif;
+  font-size:clamp(52px,10vw,110px);
+  line-height:.9;
+  background:linear-gradient(180deg,#FFD740 0%,#F5C518 40%,#C89B00 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  text-shadow:none;
+  filter:drop-shadow(0 4px 12px rgba(245,197,24,.4));
+}
+.show-logo-sub{font-family:'Bebas Neue',sans-serif;font-size:clamp(20px,4vw,42px);color:var(--white);letter-spacing:.15em;margin-top:4px;}
+.show-logo-tagline{font-size:14px;color:rgba(255,255,255,.5);letter-spacing:.08em;text-transform:uppercase;margin-top:6px;}
+
+/* ── DIVIDER ── */
+.gold-divider{width:200px;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:16px auto;}
+
+/* ── SETUP SCREEN ── */
+.setup-card{background:rgba(255,255,255,.05);border:1px solid rgba(245,197,24,.2);border-radius:20px;padding:32px 36px;width:100%;max-width:540px;margin-top:16px;}
+.setup-title{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--gold);letter-spacing:.1em;margin-bottom:20px;text-align:center;}
+.teams-list{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+.team-row{display:flex;align-items:center;gap:10px;}
+.team-color-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;}
+.team-input{flex:1;padding:10px 14px;border-radius:10px;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:var(--white);font-family:inherit;font-size:15px;font-weight:700;outline:none;transition:border-color .15s;}
+.team-input:focus{border-color:var(--gold);}
+.team-input::placeholder{color:rgba(255,255,255,.3);}
+.btn-remove{background:rgba(255,255,255,.08);border:none;color:rgba(255,255,255,.5);border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:14px;transition:all .15s;}
+.btn-remove:hover{background:var(--wrong);color:white;}
+.btn-remove:disabled{opacity:.3;cursor:not-allowed;}
+.setup-actions{display:flex;gap:10px;justify-content:center;}
+.btn{padding:12px 28px;border-radius:12px;border:none;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.1em;transition:all .15s;}
+.btn:active{transform:scale(.97);}
+.btn-gold{background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--navy);}
+.btn-gold:hover{background:linear-gradient(135deg,#FFE066,var(--gold2));}
+.btn-gold:disabled{opacity:.4;cursor:not-allowed;}
+.btn-ghost{background:rgba(255,255,255,.08);color:var(--white);border:1px solid rgba(255,255,255,.15);}
+.btn-ghost:hover{background:rgba(255,255,255,.14);}
+.btn-red{background:linear-gradient(135deg,var(--red-lt),var(--red));color:white;}
+.btn-green{background:linear-gradient(135deg,var(--green2),var(--green));color:white;}
+
+/* ── BACK BUTTON ── */
+.back-btn{position:fixed;top:16px;left:16px;z-index:200;background:rgba(0,0,0,.5);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:8px 14px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:6px;}
+.back-btn:hover{background:rgba(0,0,0,.7);color:white;}
+
+/* ── GAME SCREEN ── */
+#screen-game{justify-content:flex-start;padding:0;}
+.game-header{width:100%;background:var(--red2);border-bottom:3px solid var(--gold);padding:10px 20px;display:flex;align-items:center;gap:12px;}
+.game-show-title{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);letter-spacing:.1em;}
+.q-counter{background:rgba(0,0,0,.3);border-radius:8px;padding:4px 12px;font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--gold);letter-spacing:.06em;}
+.game-inner{flex:1;width:100%;max-width:1100px;margin:0 auto;padding:16px 20px;display:flex;flex-direction:column;gap:12px;}
+
+/* ── SCOREBOARD ── */
+.scoreboard{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.score-card{background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.1);border-radius:12px;padding:8px 16px;text-align:center;min-width:100px;transition:all .25s;}
+.score-card.buzzing{border-color:var(--gold);background:rgba(245,197,24,.15);animation:buzz .4s ease infinite alternate;}
+.score-card.scored{border-color:var(--green2);background:rgba(67,160,71,.15);}
+.score-card.wrong{border-color:var(--wrong);background:rgba(183,28,28,.15);}
+@keyframes buzz{from{transform:scale(1);}to{transform:scale(1.04);}}
+.score-name{font-size:11px;font-weight:800;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.06em;}
+.score-pts{font-family:'Anton',sans-serif;font-size:32px;color:var(--white);}
+
+/* ── QUESTION CARD ── */
+.q-card{background:rgba(255,255,255,.04);border:1px solid rgba(245,197,24,.15);border-radius:18px;padding:20px 24px;}
+.q-dept{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.q-dept-emoji{font-size:22px;}
+.q-dept-name{font-size:11px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;}
+.q-prompt{font-family:'Bebas Neue',sans-serif;font-size:clamp(14px,2vw,18px);color:rgba(255,255,255,.5);letter-spacing:.1em;margin-bottom:10px;}
+.q-text{font-size:clamp(16px,2.5vw,22px);font-weight:700;color:var(--white);line-height:1.45;}
+
+/* ── BUZZ SECTION ── */
+.buzz-section{display:flex;flex-direction:column;align-items:center;gap:12px;}
+.buzz-label{font-family:'Bebas Neue',sans-serif;font-size:18px;color:rgba(255,255,255,.5);letter-spacing:.12em;}
+.buzz-buttons{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+.buzz-btn{padding:12px 22px;border-radius:12px;border:2px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:var(--white);font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.08em;cursor:pointer;transition:all .15s;min-width:120px;}
+.buzz-btn:hover{transform:translateY(-2px);}
+.buzz-btn:disabled{opacity:.3;cursor:not-allowed;transform:none;}
+.buzz-btn.answered{opacity:.25;cursor:not-allowed;}
+
+/* ── JUDGE SECTION ── */
+.judge-section{display:flex;flex-direction:column;align-items:center;gap:12px;}
+.buzzing-for{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.1em;text-align:center;}
+.buzzing-for span{color:var(--gold);}
+.judge-question{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:.12em;text-align:center;margin-bottom:4px;}
+.judge-buttons{display:flex;gap:14px;justify-content:center;}
+.judge-btn{padding:14px 36px;border-radius:14px;border:none;cursor:pointer;font-family:'Anton',sans-serif;font-size:26px;letter-spacing:.06em;transition:all .15s;}
+.judge-btn:active{transform:scale(.96);}
+.judge-yes{background:linear-gradient(135deg,#66BB6A,var(--green));color:white;}
+.judge-yes:hover{background:linear-gradient(135deg,#81C784,var(--green2));}
+.judge-no{background:linear-gradient(135deg,#EF5350,var(--wrong));color:white;}
+.judge-no:hover{background:linear-gradient(135deg,#EF9A9A,#C62828);}
+
+/* ── RESULT PANEL ── */
+.result-panel{border-radius:18px;padding:20px 24px;text-align:center;animation:resultIn .4s cubic-bezier(.34,1.56,.64,1);}
+@keyframes resultIn{from{opacity:0;transform:scale(.85);}to{opacity:1;transform:scale(1);}}
+.result-panel.correct{background:linear-gradient(135deg,rgba(46,125,50,.3),rgba(67,160,71,.2));border:2px solid var(--green2);}
+.result-panel.wrong{background:linear-gradient(135deg,rgba(183,28,28,.3),rgba(198,38,38,.2));border:2px solid #EF5350;}
+.result-big{font-family:'Anton',sans-serif;font-size:clamp(36px,6vw,64px);letter-spacing:.04em;margin-bottom:6px;}
+.result-correct .result-big{color:#81C784;}
+.result-wrong .result-big{color:#EF5350;}
+.result-panel.correct .result-big{color:#81C784;}
+.result-panel.wrong .result-big{color:#EF9A9A;}
+.result-why{font-size:15px;line-height:1.6;color:rgba(255,255,255,.85);margin-bottom:12px;}
+.result-badge{display:inline-block;background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--navy);font-weight:900;font-size:13px;border-radius:20px;padding:5px 14px;margin-bottom:10px;}
+.result-rewrite{background:rgba(255,255,255,.06);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:10px 14px;font-size:13px;color:rgba(255,255,255,.8);text-align:left;line-height:1.6;}
+.result-rewrite strong{color:var(--gold);display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;}
+
+/* ── STEAL ── */
+.steal-section{text-align:center;}
+.steal-label{font-family:'Bebas Neue',sans-serif;font-size:20px;color:#FFB74D;letter-spacing:.12em;margin-bottom:10px;}
+.steal-buttons{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+.steal-btn{padding:10px 20px;border-radius:10px;border:2px solid #FFB74D;background:rgba(255,183,77,.1);color:#FFB74D;font-family:'Bebas Neue',sans-serif;font-size:16px;cursor:pointer;transition:all .15s;letter-spacing:.06em;}
+.steal-btn:hover{background:rgba(255,183,77,.2);}
+
+/* ── GAME ACTIONS ── */
+.game-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;padding-bottom:12px;}
+
+/* ── WRONG X ── */
+.wrong-x{display:inline-block;font-family:'Anton',sans-serif;font-size:48px;color:#EF5350;animation:xPop .3s cubic-bezier(.34,1.56,.64,1);}
+@keyframes xPop{from{transform:scale(.3) rotate(-20deg);opacity:0;}to{transform:none;opacity:1;}}
+
+/* ── RESULTS SCREEN ── */
+#screen-results{background:var(--navy);}
+.results-title{font-family:'Anton',sans-serif;font-size:clamp(48px,8vw,90px);background:linear-gradient(180deg,var(--gold2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px;}
+.results-sub{font-family:'Bebas Neue',sans-serif;font-size:22px;color:rgba(255,255,255,.5);letter-spacing:.1em;margin-bottom:24px;}
+.podium{display:flex;align-items:flex-end;gap:10px;margin-bottom:28px;}
+.podium-spot{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.podium-name{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.06em;text-align:center;max-width:120px;}
+.podium-score{font-family:'Anton',sans-serif;font-size:28px;}
+.podium-block{border-radius:10px 10px 0 0;display:flex;align-items:center;justify-content:center;font-family:'Anton',sans-serif;}
+.podium-block.p1{background:linear-gradient(180deg,var(--gold2),var(--gold-dk));color:var(--navy);width:120px;height:100px;font-size:42px;}
+.podium-block.p2{background:linear-gradient(180deg,#CFD8DC,#90A4AE);color:var(--navy);width:100px;height:80px;font-size:34px;}
+.podium-block.p3{background:linear-gradient(180deg,#FFCCBC,#FF8A65);color:var(--navy);width:90px;height:65px;font-size:28px;}
+.other-teams{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:20px;max-width:600px;}
+.other-card{background:rgba(255,255,255,.07);border-radius:10px;padding:10px 18px;text-align:center;}
+.other-rank{font-size:11px;color:var(--muted);margin-bottom:2px;}
+.other-name{font-weight:800;font-size:14px;}
+.other-score{font-family:'Anton',sans-serif;font-size:22px;color:var(--gold);}
+.results-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
+
+/* ── CONFETTI ── */
+.confetti-piece{position:fixed;top:-10px;width:10px;height:10px;border-radius:2px;animation:confettiFall linear forwards;pointer-events:none;z-index:999;}
+@keyframes confettiFall{to{transform:translateY(110vh) rotate(720deg);opacity:0;}}
+
+/* ── RESPONSIVE ── */
+@media(max-width:600px){
+  .game-actions{flex-direction:column;align-items:center;}
+  .judge-buttons{flex-direction:column;align-items:center;}
+  .btn{padding:10px 22px;font-size:18px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ── SETUP ── -->
+<div class="screen active" id="screen-setup">
+  <div class="show-logo">
+    <div class="show-logo-top">Ciudad de Pharr · OSE</div>
+    <div class="show-logo-main">¿ES UN KPI?</div>
+    <div class="show-logo-sub">100 Empleados Dijieron</div>
+    <div class="show-logo-tagline">El juego de indicadores de desempeño</div>
+  </div>
+  <div class="gold-divider"></div>
+  <div class="setup-card">
+    <div class="setup-title">Registrar Equipos</div>
+    <div class="teams-list" id="teams-list"></div>
+    <div class="setup-actions">
+      <button class="btn btn-ghost" id="btn-add-team" onclick="addTeam()">+ Agregar Equipo</button>
+      <button class="btn btn-gold" id="btn-start" onclick="startGame()" disabled>¡A Jugar!</button>
+    </div>
+  </div>
+  <div style="margin-top:16px;font-size:12px;color:rgba(255,255,255,.3);text-align:center;max-width:400px;line-height:1.6">
+    Un equipo toca el timbre y juzga si el enunciado es un KPI válido (SMART).<br>
+    ¡Respuesta correcta = puntos! Respuesta incorrecta = el rival puede robar.
+  </div>
+</div>
+
+<!-- ── GAME ── -->
+<div class="screen" id="screen-game">
+  <a class="back-btn" onclick="if(confirm('¿Volver al menú?')) showScreen('screen-setup')">← Menú</a>
+  <div class="game-header">
+    <div class="game-show-title">¿Es un KPI? — 100 Empleados Dijieron</div>
+    <div class="q-counter" id="q-count">P 1 / 15</div>
+    <div style="flex:1"></div>
+    <div style="font-size:11px;color:rgba(255,255,255,.4);letter-spacing:.06em;">Ciudad de Pharr</div>
+  </div>
+  <div class="game-inner">
+    <!-- Scoreboard -->
+    <div class="scoreboard" id="scoreboard"></div>
+    <!-- Question -->
+    <div class="q-card" id="q-card">
+      <div class="q-dept" id="q-dept"></div>
+      <div class="q-prompt">El siguiente enunciado...</div>
+      <div class="q-text" id="q-text"></div>
+    </div>
+    <!-- Dynamic zone -->
+    <div id="dynamic-zone"></div>
+    <!-- Game actions -->
+    <div class="game-actions" id="game-actions"></div>
+  </div>
+</div>
+
+<!-- ── RESULTS ── -->
+<div class="screen" id="screen-results">
+  <div class="results-title">¡Resultados!</div>
+  <div class="results-sub">100 Empleados Dijieron · Ciudad de Pharr</div>
+  <div class="podium" id="podium"></div>
+  <div class="other-teams" id="other-teams"></div>
+  <div class="results-actions">
+    <button class="btn btn-ghost" onclick="showScreen('screen-setup')">Nuevo Juego</button>
+    <button class="btn btn-gold" onclick="window.location.href='index.html'">← Hub</button>
+  </div>
+</div>
+
+<script>
+// ── TEAM COLORS ──
+var TEAM_COLORS = ['#F5C518','#EF5350','#42A5F5','#66BB6A','#FF7043','#AB47BC'];
+
+// ── QUESTIONS (Spanish) ──
+var PREGUNTAS = [
+  {
+    dept:'Parques y Recreación', emoji:'🌳',
+    texto:'Aumentar la inscripción en programas de parques de 320 a 500 participantes para el 31 de diciembre de 2025.',
+    respuesta:true,
+    porque:'Punto de partida claro (320), meta clara (500) y fecha límite definida.',
+    badge:'¡Línea base + Meta + Fecha + Fuente de datos = Estándar de Oro!',
+    reescritura:null
+  },
+  {
+    dept:'Obras Públicas', emoji:'🔧',
+    texto:'La Ciudad rellenará los baches en las calles más rápido.',
+    respuesta:false,
+    porque:'Sin línea base, sin meta, sin plazo definido — ¿qué tan rápido es "más rápido"?',
+    badge:null,
+    reescritura:'Reducir el tiempo promedio de reparación de baches de 14 días a 5 días hábiles antes del 30 de septiembre de 2025.'
+  },
+  {
+    dept:'Recursos Humanos', emoji:'👥',
+    texto:'Hacer que los empleados estén más contentos en el trabajo este año.',
+    respuesta:false,
+    porque:'"Más contentos" es vago — sin línea base, sin instrumento de medición, sin meta específica.',
+    badge:null,
+    reescritura:'Incrementar los puntajes de compromiso laboral del 71% al 82% en la Encuesta Anual de Fuerza Laboral para el 31 de diciembre de 2025.'
+  },
+  {
+    dept:'Finanzas', emoji:'💰',
+    texto:'Garantizar que el 95% de las facturas de proveedores sean procesadas dentro de los 30 días siguientes a su recepción durante todo el FY2025.',
+    respuesta:true,
+    porque:'Meta porcentual clara, plazo definido y período de reporte establecido.',
+    badge:'¡Línea base + Meta + Fecha + Fuente de datos = Estándar de Oro!',
+    reescritura:null
+  },
+  {
+    dept:'Construcción y Código', emoji:'🏗️',
+    texto:'Reducir las violaciones de código repetidas en la misma propiedad de 87 a menos de 30 antes del 30 de junio de 2025.',
+    respuesta:true,
+    porque:'Línea base real (87), meta real (<30) y fecha límite real — ¡las tres casillas marcadas!',
+    badge:'¡Línea base + Meta + Fecha + Fuente de datos = Estándar de Oro!',
+    reescritura:null
+  },
+  {
+    dept:'Comunicaciones', emoji:'📱',
+    texto:'Mejorar la presencia en redes sociales de la Ciudad e interactuar más con los residentes en línea.',
+    respuesta:false,
+    porque:'Sin tasa de participación base, sin meta y sin plazo definido.',
+    badge:null,
+    reescritura:'Incrementar la tasa de participación mensual promedio en redes sociales del 2% al 5% en todas las plataformas de la Ciudad para el 31 de diciembre de 2025.'
+  },
+  {
+    dept:'Tecnología', emoji:'💻',
+    texto:'Mantener el tiempo de actividad de la red municipal al 99% o más, medido mensualmente durante todo el FY2025.',
+    respuesta:true,
+    porque:'Meta estándar de la industria (99%), frecuencia de seguimiento mensual y período de reporte claro.',
+    badge:'¡Línea base + Meta + Fecha + Fuente de datos = Estándar de Oro!',
+    reescritura:null
+  },
+  {
+    dept:'Excelencia en Servicio', emoji:'⭐',
+    texto:'La Ciudad responderá a las solicitudes de servicio de los residentes de manera oportuna.',
+    respuesta:false,
+    porque:'"De manera oportuna" es subjetivo — sin número, sin fecha límite, sin fuente de seguimiento.',
+    badge:null,
+    reescritura:'Resolver el 90% de las solicitudes de servicio de los residentes en 5 días hábiles, registradas en el CRM de la Ciudad, para el final del FY2025.'
+  },
+  {
+    dept:'Recursos Humanos', emoji:'👥',
+    texto:'Reducir la rotación voluntaria de empleados del 22% al 14% antes del 30 de septiembre de 2025, rastreada mediante registros mensuales de salida de RRHH.',
+    respuesta:true,
+    porque:'Línea base (22%), meta (14%), fecha límite Y fuente de datos nombrada — ¡un KPI de estándar de oro!',
+    badge:'¡Línea base + Meta + Fecha + Fuente de datos = Estándar de Oro!',
+    reescritura:null
+  },
+  {
+    dept:'Comunicación Comunitaria', emoji:'📣',
+    texto:'Más residentes deben conocer los programas y servicios de la Ciudad disponibles para ellos.',
+    respuesta:false,
+    porque:'"Más" no es un número. Sin línea base, sin meta, sin método de medición.',
+    badge:null,
+    reescritura:'Aumentar el conocimiento de los residentes sobre los programas de la Ciudad del 45% al 60%, medido por la Encuesta Anual Ciudadana, para el 31 de diciembre de 2025.'
+  },
+  {
+    dept:'Servicios de Desarrollo', emoji:'🏢',
+    texto:'Expedir el 90% de los permisos de construcción residencial de rutina en 10 días hábiles desde la presentación completa de la solicitud, a partir del 1 de enero de 2025.',
+    respuesta:true,
+    porque:'Alcance específico, meta realista, estándar de desempeño claro y fecha de inicio definida.',
+    badge:'¡Línea base + Meta + Fecha + Fuente de datos = Estándar de Oro!',
+    reescritura:null
+  },
+  {
+    dept:'Finanzas', emoji:'💰',
+    texto:'La Ciudad de Pharr será financieramente responsable y asegurará que los fondos se utilicen sabiamente en todos los departamentos.',
+    respuesta:false,
+    porque:'Aspiracional y vago — "financieramente responsable" no significa nada sin números.',
+    badge:null,
+    reescritura:'Mantener la variación presupuestaria municipal dentro del ±3% del presupuesto aprobado al cierre del año fiscal, el 30 de septiembre de 2025.'
+  },
+  {
+    dept:'Parques y Recreación', emoji:'🌳',
+    texto:'Alcanzar un puntaje de satisfacción del 80% o más en la limpieza de instalaciones de parques, según la Encuesta Anual Ciudadana, para el 31 de diciembre de 2025. La línea base actual es del 67%.',
+    respuesta:true,
+    porque:'Instrumento de medición nombrado, línea base clara (67%), tema específico y fecha límite concreta.',
+    badge:'¡Línea base + Meta + Fecha + Fuente de datos = Estándar de Oro!',
+    reescritura:null
+  },
+  {
+    dept:'Seguridad Pública', emoji:'🚨',
+    texto:'Reducir el tiempo promedio de respuesta a emergencias en llamadas de Prioridad 1 de 8.4 minutos a 7.0 minutos en toda la ciudad antes del 31 de diciembre de 2025, según el sistema de despacho.',
+    respuesta:true,
+    porque:'Tipo de llamada específico, línea base real (8.4 min), meta real (7.0 min), fuente de datos nombrada y fecha límite clara.',
+    badge:'¡Línea base + Meta + Fecha + Fuente de datos = Estándar de Oro!',
+    reescritura:null
+  },
+  {
+    dept:'Oficina del Gerente Municipal', emoji:'🏛️',
+    texto:'Los departamentos de la Ciudad utilizarán los datos de manera más consistente para respaldar la toma de decisiones e impulsar la mejora continua.',
+    respuesta:false,
+    porque:'"Más consistentemente" e "impulsar la mejora" son completamente imposibles de medir sin un número.',
+    badge:null,
+    reescritura:'Lograr que el 100% de los departamentos de la Ciudad envíen datos de KPI mensualmente al panel de desempeño para el 30 de junio de 2025, desde la tasa de envío actual del 40%.'
+  }
+];
+
+// ── STATE ──
+var teams = [];
+var currentQ = 0;
+var buzzedTeamIdx = null;
+var answeredTeams = [];
+var scoredTeamIdx = null;
+var stealMode = false;
+
+// ── HELPERS ──
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  document.getElementById(id).classList.add('active');
+}
+function el(id){return document.getElementById(id);}
+
+// ── SETUP ──
+function initSetup(){
+  teams=[];addTeam('Equipo 1');addTeam('Equipo 2');renderTeams();
+}
+
+function addTeam(name){
+  if(teams.length>=6) return;
+  teams.push({name:name||('Equipo '+(teams.length+1)),score:0});
+  renderTeams();
+  el('btn-add-team').disabled=teams.length>=6;
+}
+
+function removeTeam(idx){
+  if(teams.length<=2) return;
+  teams.splice(idx,1);renderTeams();
+  el('btn-add-team').disabled=false;
+}
+
+function renderTeams(){
+  var list=el('teams-list');list.innerHTML='';
+  teams.forEach(function(t,i){
+    var row=document.createElement('div');row.className='team-row';
+    var dot=document.createElement('div');dot.className='team-color-dot';dot.style.background=TEAM_COLORS[i];
+    var inp=document.createElement('input');inp.className='team-input';inp.type='text';inp.value=t.name;inp.placeholder='Equipo '+(i+1);
+    (function(idx){inp.oninput=function(){teams[idx].name=inp.value||('Equipo '+(idx+1));};})(i);
+    var btn=document.createElement('button');btn.className='btn-remove';btn.textContent='✕';btn.title='Eliminar';
+    (function(idx){btn.onclick=function(){removeTeam(idx);};})(i);
+    if(teams.length<=2) btn.disabled=true;
+    row.appendChild(dot);row.appendChild(inp);row.appendChild(btn);list.appendChild(row);
+  });
+  el('btn-start').disabled=teams.length<2;
+}
+
+function startGame(){
+  document.querySelectorAll('.team-input').forEach(function(inp,i){if(teams[i]) teams[i].name=inp.value||('Equipo '+(i+1));});
+  teams.forEach(function(t){t.score=0;});
+  currentQ=0;showScreen('screen-game');loadQuestion();
+}
+
+// ── GAME ──
+function loadQuestion(){
+  if(currentQ>=PREGUNTAS.length){showResults();return;}
+  var q=PREGUNTAS[currentQ];
+  buzzedTeamIdx=null;answeredTeams=[];scoredTeamIdx=null;stealMode=false;
+  el('q-count').textContent='P '+(currentQ+1)+' / '+PREGUNTAS.length;
+  el('q-dept').innerHTML='<div class="q-dept-emoji">'+q.emoji+'</div><div class="q-dept-name">'+q.dept+'</div>';
+  el('q-text').textContent=q.texto;
+  renderScoreboard();
+  showBuzzSection();
+  renderGameActions();
+}
+
+function renderScoreboard(){
+  var html='';
+  teams.forEach(function(t,i){
+    var cls='score-card';
+    if(i===buzzedTeamIdx) cls+=' buzzing';
+    if(i===scoredTeamIdx) cls+=' scored';
+    if(answeredTeams.indexOf(i)>=0&&i!==scoredTeamIdx) cls+=' wrong';
+    html+='<div class="'+cls+'" style="border-color:'+(i===buzzedTeamIdx?'var(--gold)':TEAM_COLORS[i]+'66')+';">';
+    html+='<div class="score-name">'+t.name+'</div>';
+    html+='<div class="score-pts" style="color:'+TEAM_COLORS[i]+'">'+t.score+'</div></div>';
+  });
+  el('scoreboard').innerHTML=html;
+}
+
+function showBuzzSection(){
+  var html='<div class="buzz-section">';
+  html+='<div class="buzz-label">¿Quién toca el timbre primero?</div>';
+  html+='<div class="buzz-buttons">';
+  teams.forEach(function(t,i){
+    var disabled=(answeredTeams.indexOf(i)>=0)||'';
+    var cls='buzz-btn'+(answeredTeams.indexOf(i)>=0?' answered':'');
+    html+='<button class="'+cls+'" style="border-color:'+TEAM_COLORS[i]+';color:'+TEAM_COLORS[i]+(disabled?';opacity:.25;cursor:not-allowed':'')+'" onclick="buzz('+i+')" '+(disabled?'disabled':'')+'>'+t.name+'</button>';
+  });
+  html+='</div></div>';
+  el('dynamic-zone').innerHTML=html;
+}
+
+function buzz(idx){
+  buzzedTeamIdx=idx;
+  renderScoreboard();
+  showJudgeSection(idx);
+}
+
+function showJudgeSection(idx){
+  var t=teams[idx];
+  var html='<div class="judge-section">';
+  html+='<div class="buzzing-for">Buzzeó: <span style="color:'+TEAM_COLORS[idx]+'">'+t.name+'</span></div>';
+  html+='<div class="judge-question">¿Es un KPI válido?</div>';
+  html+='<div class="judge-buttons">';
+  html+='<button class="judge-btn judge-yes" onclick="judgeAnswer('+idx+',true)">✓ SÍ ES</button>';
+  html+='<button class="judge-btn judge-no" onclick="judgeAnswer('+idx+',false)">✗ NO ES</button>';
+  html+='</div></div>';
+  el('dynamic-zone').innerHTML=html;
+}
+
+function judgeAnswer(idx,answer){
+  var q=PREGUNTAS[currentQ];
+  var correct=(answer===q.respuesta);
+  answeredTeams.push(idx);
+  if(correct){
+    teams[idx].score+=100;scoredTeamIdx=idx;stealMode=false;
+    renderScoreboard();
+    showResult(q,true,idx);
+  } else {
+    renderScoreboard();
+    // Check if all teams answered
+    var remaining=teams.filter(function(_,i){return answeredTeams.indexOf(i)<0;});
+    if(remaining.length>0&&!stealMode){
+      stealMode=true;
+      showWrongThenSteal(q,idx);
+    } else {
+      showResult(q,false,idx);
+    }
+  }
+}
+
+function showWrongThenSteal(q,wrongIdx){
+  var html='';
+  // Wrong flash
+  html+='<div style="text-align:center;margin-bottom:12px;">';
+  html+='<div class="wrong-x">✗</div>';
+  html+='<div style="font-family:Bebas Neue,sans-serif;font-size:18px;color:#EF5350;letter-spacing:.1em">¡Respuesta incorrecta!</div>';
+  html+='</div>';
+  // Steal section
+  html+='<div class="steal-section">';
+  html+='<div class="steal-label">🔥 ¡OPORTUNIDAD DE ROBO!</div>';
+  html+='<div class="steal-buttons">';
+  teams.forEach(function(t,i){
+    if(answeredTeams.indexOf(i)<0){
+      html+='<button class="steal-btn" style="border-color:'+TEAM_COLORS[i]+';color:'+TEAM_COLORS[i]+'" onclick="buzz('+i+')">'+t.name+'</button>';
+    }
+  });
+  html+='</div></div>';
+  el('dynamic-zone').innerHTML=html;
+  renderScoreboard();
+}
+
+function showResult(q,correct,idx){
+  var html='<div class="result-panel '+(correct?'correct':'wrong')+'">';
+  if(correct){
+    html+='<div class="result-big">¡SÍ ES UN KPI!</div>';
+    if(q.badge) html+='<div class="result-badge">'+q.badge+'</div>';
+  } else {
+    html+='<div class="result-big">¡NO ES UN KPI!</div>';
+  }
+  html+='<div class="result-why">'+q.porque+'</div>';
+  if(!correct&&q.reescritura){
+    html+='<div class="result-rewrite"><strong>✏️ Cómo reescribirlo:</strong>'+q.reescritura+'</div>';
+  }
+  html+='</div>';
+  el('dynamic-zone').innerHTML=html;
+  renderScoreboard();
+  renderGameActions(true);
+}
+
+function renderGameActions(showNext){
+  var html='';
+  if(showNext){
+    if(currentQ<PREGUNTAS.length-1){
+      html+='<button class="btn btn-gold" onclick="nextQ()">Siguiente Pregunta →</button>';
+    } else {
+      html+='<button class="btn btn-gold" onclick="showResults()">Ver Resultados 🏆</button>';
+    }
+  }
+  html+='<button class="btn btn-ghost" onclick="if(confirm(\'¿Saltar esta pregunta?\')) nextQ()">Saltar</button>';
+  el('game-actions').innerHTML=html;
+}
+
+function nextQ(){currentQ++;loadQuestion();}
+
+// ── RESULTS ──
+function showResults(){
+  var sorted=teams.slice().sort(function(a,b){return b.score-a.score;});
+  var podiumSpots=[sorted[1],sorted[0],sorted[2]].filter(Boolean);
+  var podiumHtml='';
+  podiumSpots.forEach(function(t){
+    var pos=(t===sorted[0])?0:(t===sorted[1])?1:2;
+    var bclass=['p2','p1','p3'][pos];
+    var lbl=['2°','1°','3°'][pos];
+    var orig=teams.indexOf(t);
+    podiumHtml+='<div class="podium-spot">';
+    podiumHtml+='<div class="podium-name" style="color:'+TEAM_COLORS[orig]+'">'+t.name+'</div>';
+    podiumHtml+='<div class="podium-score" style="color:'+TEAM_COLORS[orig]+'">'+t.score+' pts</div>';
+    podiumHtml+='<div class="podium-block '+bclass+'">'+lbl+'</div>';
+    podiumHtml+='</div>';
+  });
+  el('podium').innerHTML=podiumHtml;
+  var otherHtml='';
+  for(var i=3;i<sorted.length;i++){
+    var orig2=teams.indexOf(sorted[i]);
+    otherHtml+='<div class="other-card"><div class="other-rank">'+(i+1)+'° lugar</div>';
+    otherHtml+='<div class="other-name" style="color:'+TEAM_COLORS[orig2]+'">'+sorted[i].name+'</div>';
+    otherHtml+='<div class="other-score">'+sorted[i].score+'</div></div>';
+  }
+  el('other-teams').innerHTML=otherHtml;
+  showScreen('screen-results');
+  launchConfetti();
+}
+
+// ── CONFETTI ──
+function launchConfetti(){
+  var colors=['#F5C518','#EF5350','#42A5F5','#66BB6A','#FF7043','#FFFFFF'];
+  for(var i=0;i<80;i++){
+    (function(delay){
+      setTimeout(function(){
+        var p=document.createElement('div');
+        p.className='confetti-piece';
+        p.style.left=Math.random()*100+'vw';
+        p.style.background=colors[Math.floor(Math.random()*colors.length)];
+        p.style.width=(Math.random()*10+5)+'px';
+        p.style.height=(Math.random()*10+5)+'px';
+        p.style.animationDuration=(Math.random()*2+2)+'s';
+        p.style.animationDelay='0s';
+        document.body.appendChild(p);
+        setTimeout(function(){p.remove();},4000);
+      },delay);
+    })(i*60);
+  }
+}
+
+initSetup();
+</script>
+</body>
+</html>
