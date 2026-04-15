@@ -538,16 +538,27 @@ function showWrongThenSteal(q,wrongIdx){
   renderScoreboard();
 }
 
-function showResult(q,correct,idx){
-  var html='<div class="result-panel '+(correct?'correct':'wrong')+'">';
-  if(correct){
+function showResult(q,teamCorrect,idx){
+  // Panel color/message = what the KPI actually IS, not how the team answered
+  var kpiIsValid = q.respuesta;
+  var html='<div class="result-panel '+(kpiIsValid?'correct':'wrong')+'">';
+  if(kpiIsValid){
     html+='<div class="result-big">¡SÍ ES UN KPI!</div>';
     if(q.badge) html+='<div class="result-badge">'+q.badge+'</div>';
   } else {
     html+='<div class="result-big">¡NO ES UN KPI!</div>';
   }
+  // Show whether the team that answered got it right
+  if(idx!==null&&idx!==undefined){
+    var teamName=teams[idx].name;
+    if(teamCorrect){
+      html+='<div style="font-size:13px;color:#81C784;font-weight:800;margin-bottom:8px;">✓ '+teamName+' respondió correctamente — +100 puntos</div>';
+    } else {
+      html+='<div style="font-size:13px;color:#EF9A9A;font-weight:800;margin-bottom:8px;">✗ '+teamName+' respondió incorrectamente</div>';
+    }
+  }
   html+='<div class="result-why">'+q.porque+'</div>';
-  if(!correct&&q.reescritura){
+  if(!kpiIsValid&&q.reescritura){
     html+='<div class="result-rewrite"><strong>✏️ Cómo reescribirlo:</strong>'+q.reescritura+'</div>';
   }
   html+='</div>';
